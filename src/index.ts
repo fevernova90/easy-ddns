@@ -10,8 +10,10 @@ import {
 let previousTargetRecordId: string | undefined = undefined
 let previousIpAddress: string | undefined = undefined
 
+const crontab = config.UPDATE_CRONTAB
+
 const job = new CronJob(
-  config.UPDATE_CRONTAB,
+  crontab,
   async () => {
     console.log("Cron triggered.")
     const recordName = config.DNS_RECORD_NAME
@@ -78,3 +80,5 @@ const job = new CronJob(
 )
 
 job.start()
+
+console.log("Easy DDNS is running, your crontab is:", crontab)
