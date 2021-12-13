@@ -39,10 +39,7 @@ version: "3"
 
 services:
   easy-ddns:
-    build:
-      context: ./
-      target: production
-    image: easy-ddns
+    image: fevernova90/easy-ddns:latest
     environment:
       # crontab cannot have enclosed quotes
       - UPDATE_CRONTAB=0 * * * * *
