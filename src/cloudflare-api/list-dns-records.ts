@@ -5,10 +5,12 @@ import {
   ListDnsRecordsResponse,
 } from "./types/list-dns-records.interface"
 
+const baseUrl =
+  process.env.CLOUDFLARE_BASE_URL ?? "https://api.cloudflare.com/client/v4"
+
 export const searchDnsRecords = (domainName: string) => {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN
   const zoneId = process.env.CLOUDFLARE_ZONE_ID
-  const baseUrl = process.env.CLOUDFLARE_BASE_URL
 
   const params: ListDnsRecordsParams = {
     name: domainName,

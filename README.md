@@ -26,69 +26,77 @@ In order to run this container you'll need docker installed.
 
 List the different parameters available to your container
 
+Docker run command:
+
 ```shell
 docker run --env-file=.env fevernova90/easy-ddns
 ```
 
-One example per permutation
+Docker compose example:
 
-```shell
-docker run give.example.org/of/your/container:v0.2.1
-```
+```yml
+version: "3"
 
-Show how to get a shell started in your container too
-
-```shell
-docker run give.example.org/of/your/container:v0.2.1 bash
+services:
+  easy-ddns:
+    build:
+      context: ./
+      target: production
+    image: easy-ddns
+    environment:
+      # crontab cannot have enclosed quotes
+      - UPDATE_CRONTAB=0 * * * * *
+      - DNS_RECORD_NAME=example.com
+      - DNS_RECORD_TYPE=A
+      - DNS_RECORD_TTL=300
+      - CLOUDFLARE_BASE_URL=https://api.cloudflare.com/client/v4
+      - CLOUDFLARE_ZONE_ID=
+      - CLOUDFLARE_API_TOKEN=
 ```
 
 #### Environment Variables
 
-- `VARIABLE_ONE` - A Description
-- `ANOTHER_VAR` - More Description
-- `YOU_GET_THE_IDEA` - And another
+- `DNS_RECORD_NAME` - Your target domain name to update
+- `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token (at least opted for DNS Record pemission)
+- `CLOUDFLARE_ZONE_ID` - Your Cloudflare zone ID
 
-#### Volumes
+#### Optional Environment Variables
 
-- `/your/file/location` - File location
-
-#### Useful File Locations
-
-- `/some/special/script.sh` - List special scripts
-- `/magic/dir` - And also directories
+- `UPDATE_CRONTAB` - Cron job to update your DNS record, default is `0 * * * * *`
+- `DNS_RECORD_TYPE` - DNS record type, default is `A`
+- `DNS_RECORD_TTL` - DNS record TTL, default is `300`
+- `CLOUDFLARE_BASE_URL` - Cloudflare API base URL, default is `https://api.cloudflare.com/client/v4`
 
 ## Built With
 
-- List the software v0.1.3
-- And the version numbers v2.0.0
-- That are in this container v0.3.2
+- Nodejs LTS - Alpine
 
 ## Find Us
 
-- [GitHub](https://github.com/your/repository)
-- [Quay.io](https://quay.io/repository/your/docker-repository)
+- [GitHub](https://github.com/fevernova90/easy-ddns)
+- [Dockerhub](https://hub.docker.com/r/fevernova90/easy-ddns)
 
-## Contributing
+<!-- ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the
-[tags on this repository](https://github.com/your/repository/tags).
+[tags on this repository](https://github.com/your/repository/tags). -->
 
 ## Authors
 
-- **Billie Thompson** - _Initial work_ - [PurpleBooth](https://github.com/PurpleBooth)
+- **Muhaimin Taib** - _Initial work_ - [fevernova90](https://github.com/fevernova90)
 
-See also the list of [contributors](https://github.com/your/repository/contributors) who
-participated in this project.
+<!-- See also the list of [contributors](https://github.com/your/repository/contributors) who
+participated in this project. -->
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
-## Acknowledgments
+<!-- ## Acknowledgments
 
 - People you want to thank
-- If you took a bunch of code from somewhere list it here
+- If you took a bunch of code from somewhere list it here -->

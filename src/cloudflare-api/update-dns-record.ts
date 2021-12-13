@@ -6,6 +6,9 @@ import {
   UpdateDnsRecordResponse,
 } from "./types/update-dns-record.interface"
 
+const baseUrl =
+  process.env.CLOUDFLARE_BASE_URL ?? "https://api.cloudflare.com/client/v4"
+
 export const updateDnsRecord = (
   recordId: string,
   domainName: string,
@@ -13,7 +16,6 @@ export const updateDnsRecord = (
 ) => {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN
   const zoneId = process.env.CLOUDFLARE_ZONE_ID
-  const baseUrl = process.env.CLOUDFLARE_BASE_URL
   const dnsRecordType: DNSType = (process.env.DNS_RECORD_TYPE as DNSType) ?? "A"
 
   const data: UpdateDnsRecordPayload = {

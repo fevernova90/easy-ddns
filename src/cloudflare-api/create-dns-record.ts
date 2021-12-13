@@ -6,10 +6,12 @@ import {
 } from "./types/create-dns-record.interface"
 import { DNSType } from "./types/list-dns-records.interface"
 
+const baseUrl =
+  process.env.CLOUDFLARE_BASE_URL ?? "https://api.cloudflare.com/client/v4"
+
 export const createDnsRecord = (domainName: string, ipAddress: string) => {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN
   const zoneId = process.env.CLOUDFLARE_ZONE_ID
-  const baseUrl = process.env.CLOUDFLARE_BASE_URL
   const dnsRecordType: DNSType = (process.env.DNS_RECORD_TYPE as DNSType) ?? "A"
 
   const data: CreateDnsRecordPayload = {
