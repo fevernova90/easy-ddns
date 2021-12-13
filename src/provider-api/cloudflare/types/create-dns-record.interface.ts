@@ -1,5 +1,5 @@
 import { CFDefaultResponse } from "./api-base.interface"
-import { CFDnsRecord, CFDNSType } from "./list-dns-records.interface"
+import { CFDNSRecord, CFDNSType } from "./list-dns-records.interface"
 
 export interface CFCreateDnsRecordPayload {
   type: CFDNSType
@@ -9,5 +9,5 @@ export interface CFCreateDnsRecordPayload {
 }
 
 export interface CFCreateDnsRecordResponse extends CFDefaultResponse {
-  result: CFDnsRecord
+  result: CFDNSRecord
 }

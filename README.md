@@ -1,6 +1,6 @@
 # EASY-DDNS
 
-**Currently only supports [Cloudflare](https://api.cloudflare.com/).**
+**Currently only supports [Cloudflare](https://api.cloudflare.com/) and [DigitalOcean](https://docs.digitalocean.com/reference/api).**
 
 Latest tag: `0.0.1` `latest`
 
@@ -44,25 +44,34 @@ services:
       # crontab cannot have enclosed quotes
       - UPDATE_CRONTAB=0 * * * *
       - DNS_RECORD_NAME=example.com
-      - DNS_RECORD_TYPE=A
       - DNS_RECORD_TTL=300
-      - CLOUDFLARE_BASE_URL=https://api.cloudflare.com/client/v4
+      - DNS_PROVIDER=cloudflare
       - CLOUDFLARE_ZONE_ID=
       - CLOUDFLARE_API_TOKEN=
 ```
 
-#### Environment Variables
+#### Required Environment Variables
 
 - `DNS_RECORD_NAME` - Your target domain name to update
+- `DNS_PROVIDER` - Your DNS provider, currently supported: [Cloudflare](https://api.cloudflare.com/) and [DigitalOcean](https://docs.digitalocean.com/reference/api/)
+
+##### Cloudflare Provider Environment Variables
+
 - `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token (at least opted for DNS Record pemission)
 - `CLOUDFLARE_ZONE_ID` - Your Cloudflare zone ID
+- `CLOUDFLARE_BASE_URL` - (Optional) Cloudflare API base URL, default is `https://api.cloudflare.com/client/v4`
+
+##### DigitalOcean Provider Environment Variables
+
+- `DIGITALOCEAN_TLD_DOMAIN` - Your DigitalOcean managed TLD domain (e.g. `example.com`)
+- `DIGITALOCEAN_ACCESS_TOKEN` - Your DigitalOcean API token (get it from API & Applications section)
+- `DIGITALOCEAN_BASE_URL` - (Optional) Digitalocean API base URL, default is `https://api.digitalocean.com/v2`
 
 #### Optional Environment Variables
 
 - `UPDATE_CRONTAB` - Cron job to update your DNS record, default is `0 * * * * *`
 - `DNS_RECORD_TYPE` - DNS record type, default is `A`
 - `DNS_RECORD_TTL` - DNS record TTL, default is `300`
-- `CLOUDFLARE_BASE_URL` - Cloudflare API base URL, default is `https://api.cloudflare.com/client/v4`
 
 ## Built With
 

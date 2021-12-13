@@ -1,8 +1,6 @@
 import {
   CFDefaultResponse,
-  CFPaginationResponse,
   CFRequestPaginationParams,
-  CFResponseError,
 } from "./api-base.interface"
 
 export type CFDNSType =
