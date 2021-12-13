@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  easy-ddns:
+    build:
+      context: ./
+      target: production
+    image: easy-ddns
+    environment:
+      # crontab cannot have enclosed quotes
+      - UPDATE_CRONTAB=0 * * * * *
+      - DNS_RECORD_NAME=example.com
+      - DNS_RECORD_TYPE=A
+      - DNS_RECORD_TTL=300
+      - CLOUDFLARE_BASE_URL=https://api.cloudflare.com/client/v4
+      - CLOUDFLARE_ZONE_ID=
+      - CLOUDFLARE_API_TOKEN=
