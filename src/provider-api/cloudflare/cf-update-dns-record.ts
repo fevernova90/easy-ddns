@@ -1,32 +1,37 @@
 import axios, { AxiosError } from "axios"
+import { config } from "../../config"
 import { CFResponseError } from "./types/api-base.interface"
-import { DNSType } from "./types/list-dns-records.interface"
+import { CFDNSRecord, CFDNSType } from "./types/list-dns-records.interface"
 import {
-  UpdateDnsRecordPayload,
-  UpdateDnsRecordResponse,
+  CFUpdateDnsRecordPayload,
+  CFUpdateDnsRecordResponse,
 } from "./types/update-dns-record.interface"
 
-const baseUrl =
-  process.env.CLOUDFLARE_BASE_URL ?? "https://api.cloudflare.com/client/v4"
+const baseUrl = config.CLOUDFLARE_BASE_URL
 
-export const updateDnsRecord = (
+export const CFUpdateDnsRecord = (
   recordId: string,
-  domainName: string,
+  recordName: string,
   ipAddress: string
-) => {
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN
-  const zoneId = process.env.CLOUDFLARE_ZONE_ID
-  const dnsRecordType: DNSType = (process.env.DNS_RECORD_TYPE as DNSType) ?? "A"
+): Promise<CFDNSRecord> => {
+  const apiToken = config.CLOUDFLARE_API_TOKEN
+  const zoneId = config.CLOUDFLARE_ZONE_ID
 
-  const data: UpdateDnsRecordPayload = {
+  if (!apiToken || !zoneId)
+    throw new Error("Missing Cloudflare API credentials.")
+
+  const dnsRecordType: CFDNSType = config.DNS_RECORD_TYPE as CFDNSType
+  const ttl = config.DNS_RECORD_TTL
+
+  const data: CFUpdateDnsRecordPayload = {
     type: dnsRecordType,
-    name: domainName,
+    name: recordName,
     content: ipAddress,
-    ttl: Number(process.env.DNS_RECORD_TTL) ?? 300,
+    ttl,
   }
 
   return axios
-    .put<UpdateDnsRecordResponse>(
+    .put<CFUpdateDnsRecordResponse>(
       baseUrl + `/zones/${zoneId}/dns_records/${recordId}`,
       data,
       {

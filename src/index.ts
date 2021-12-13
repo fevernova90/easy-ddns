@@ -1,23 +1,22 @@
-require("dotenv").config()
-
 import { CronJob } from "cron"
-import { createDnsRecord } from "./cloudflare-api/create-dns-record"
-import { searchDnsRecords } from "./cloudflare-api/list-dns-records"
-import { updateDnsRecord } from "./cloudflare-api/update-dns-record"
+import { config } from "./config"
 import { getIpFromIpfast } from "./ip-lookup/get-ip-from-ipfast"
-
-const updateCrontab = process.env.UPDATE_CRONTAB ?? "0 * * * *"
+import {
+  createDnsRecord,
+  searchDnsRecords,
+  updateDnsRecord,
+} from "./provider-api/provider-api"
 
 let previousTargetRecordId: string | undefined = undefined
 let previousIpAddress: string | undefined = undefined
 
 const job = new CronJob(
-  updateCrontab,
+  config.UPDATE_CRONTAB,
   async () => {
     console.log("Cron triggered.")
-    const domainName = process.env.DNS_RECORD_NAME
+    const recordName = config.DNS_RECORD_NAME
 
-    if (!domainName) throw new Error("DNS_RECORD_NAME is not set.")
+    if (!recordName) throw new Error("DNS_RECORD_NAME is not set.")
 
     // Get host external ip address
     let currentIp: string
@@ -41,22 +40,33 @@ const job = new CronJob(
     // If previous record already exists, update it
     if (previousTargetRecordId) {
       console.log(`Updating existing record with new IP: ${currentIp}.`)
-      updateDnsRecord(previousTargetRecordId, domainName, currentIp)
+      updateDnsRecord({
+        recordId: previousTargetRecordId,
+        recordName,
+        ipAddress: currentIp,
+      })
       previousTargetRecordId
     } else {
       // Check DNS records first for existing record with same domain name and type
-      const existingRecord = await searchDnsRecords(domainName)
+      const existingRecord = await searchDnsRecords({ recordName })
       if (existingRecord) {
         console.log(
-          `Found existing record with domain name: ${domainName}. Updating it.`
+          `Found existing record with domain name: ${recordName}. Updating it.`
         )
-        updateDnsRecord(existingRecord.id, domainName, currentIp)
+        updateDnsRecord({
+          recordId: existingRecord.id,
+          recordName,
+          ipAddress: currentIp,
+        })
         previousTargetRecordId = existingRecord.id
         return
       }
       // else, Create a new record
       console.log(`Creating new record with new IP: ${currentIp}.`)
-      const newRecord = await createDnsRecord(domainName, currentIp)
+      const newRecord = await createDnsRecord({
+        recordName,
+        ipAddress: currentIp,
+      })
       previousTargetRecordId = newRecord.id
     }
   },

@@ -5,7 +5,7 @@ import {
   CFResponseError,
 } from "./api-base.interface"
 
-export type DNSType =
+export type CFDNSType =
   | "A"
   | "AAAA"
   | "CNAME"
@@ -25,19 +25,19 @@ export type DNSType =
   | "TLSA"
   | "URI"
 
-export interface ListDnsRecordsParams extends CFRequestPaginationParams {
+export interface CFListDnsRecordsQueryParams extends CFRequestPaginationParams {
   // DNS Record Name
   name: string
-  type: DNSType
+  type: CFDNSType
 }
 
-export interface ListDnsRecordsResponse extends CFDefaultResponse {
-  result: ListDnsRecordsResult[]
+export interface CFListDnsRecordsResponse extends CFDefaultResponse {
+  result: CFDNSRecord[]
 }
 
-export interface ListDnsRecordsResult {
+export interface CFDNSRecord {
   id: string
-  type: string
+  type: CFDNSType
   name: string
   content: string
   proxiable: boolean
