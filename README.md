@@ -42,7 +42,7 @@ services:
     image: fevernova90/easy-ddns:latest
     environment:
       # crontab cannot have enclosed quotes
-      - UPDATE_CRONTAB=0 * * * * *
+      - UPDATE_CRONTAB=0 * * * *
       - DNS_RECORD_NAME=example.com
       - DNS_RECORD_TYPE=A
       - DNS_RECORD_TTL=300
