@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios"
 import { config } from "../../config"
-import { getSubFromFQDN } from "../utils/domain-string-helpers"
+import { getSubFromFQDN } from "../../utils/domain-string-helpers"
 import { DODNSRecord, DODNSType } from "./types/list-dns-records.interface"
 import {
   DOUpdateDnsRecordPayload,
@@ -12,6 +12,7 @@ const baseUrl = config.DIGITALOCEAN_BASE_URL
 export const DOUpdateDnsRecord = (
   recordId: string,
   recordName: string,
+  recordType: DODNSType,
   ipAddress: string
 ): Promise<DODNSRecord> => {
   const apiToken = config.DIGITALOCEAN_ACCESS_TOKEN
@@ -19,13 +20,12 @@ export const DOUpdateDnsRecord = (
 
   if (!apiToken) throw new Error("Missing DigitalOcean API credentials.")
 
-  const dnsRecordType: DODNSType = config.DNS_RECORD_TYPE as DODNSType
   const ttl = config.DNS_RECORD_TTL
 
   const recordNameWithoutTLD = getSubFromFQDN(recordName)
 
   const data: DOUpdateDnsRecordPayload = {
-    type: dnsRecordType,
+    type: recordType,
     name: recordNameWithoutTLD,
     data: ipAddress,
     ttl,

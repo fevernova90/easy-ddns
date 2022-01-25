@@ -1,14 +1,26 @@
 import { CronJob } from "cron"
 import { config } from "./config"
-import { getIpFromIpfast } from "./ip-lookup/get-ip-from-ipfast"
+import { getIpFromLookupProvider, IPs } from "./ip-lookup"
 import {
   createDnsRecord,
   searchDnsRecords,
   updateDnsRecord,
 } from "./provider-api/provider-api"
+import { isIPv4, isIPv6 } from "net"
 
-let previousTargetRecordId: string | undefined = undefined
-let previousIpAddress: string | undefined = undefined
+export interface DNSRecordIds {
+  v4: string | null
+  v6: string | null
+}
+
+let previousTargetRecordId: DNSRecordIds = {
+  v4: null,
+  v6: null,
+}
+let previousIpAddress: IPs = {
+  v4: null,
+  v6: null,
+}
 
 const crontab = config.UPDATE_CRONTAB
 
@@ -21,55 +33,24 @@ const job = new CronJob(
     if (!recordName) throw new Error("DNS_RECORD_NAME is not set.")
 
     // Get host external ip address
-    let currentIp: string
+    let currentIps: IPs
     try {
-      currentIp = await getIpFromIpfast()
+      currentIps = await getIpFromLookupProvider()
     } catch (err) {
       console.warn("Attempt to get ip address failed.")
       return
     }
 
-    // If ip address does not change, do nothing
-    if (currentIp === previousIpAddress) {
-      console.log(
-        `IP address does not change. Previous: ${previousIpAddress} Current: ${currentIp}`
-      )
-      return
-    }
-
-    previousIpAddress = currentIp
-
-    // If previous record already exists, update it
-    if (previousTargetRecordId) {
-      console.log(`Updating existing record with new IP: ${currentIp}.`)
-      updateDnsRecord({
-        recordId: previousTargetRecordId,
-        recordName,
-        ipAddress: currentIp,
-      })
-      previousTargetRecordId
-    } else {
-      // Check DNS records first for existing record with same domain name and type
-      const existingRecord = await searchDnsRecords({ recordName })
-      if (existingRecord) {
-        console.log(
-          `Found existing record with domain name: ${recordName}. Updating it.`
-        )
-        updateDnsRecord({
-          recordId: existingRecord.id,
-          recordName,
-          ipAddress: currentIp,
-        })
-        previousTargetRecordId = existingRecord.id
-        return
+    // Check for ipv4 changes
+    try {
+      await updateDNSRecordIfRequired(recordName, currentIps.v4, "v4")
+      if (config.UPDATE_IPV6) {
+        await updateDNSRecordIfRequired(recordName, currentIps.v6, "v6")
       }
-      // else, Create a new record
-      console.log(`Creating new record with new IP: ${currentIp}.`)
-      const newRecord = await createDnsRecord({
-        recordName,
-        ipAddress: currentIp,
-      })
-      previousTargetRecordId = newRecord.id
+      previousIpAddress.v4 = currentIps.v4
+      previousIpAddress.v6 = currentIps.v6
+    } catch (err) {
+      console.log("Failed to update ipv4 DNS record.", err)
     }
   },
   () => {
@@ -82,3 +63,66 @@ const job = new CronJob(
 job.start()
 
 console.log("Easy DDNS is running, your crontab is:", crontab)
+
+async function updateDNSRecordIfRequired(
+  recordName: string,
+  ip: string | null | undefined,
+  version: "v4" | "v6"
+) {
+  if (!ip) return
+
+  if (version === "v4") {
+    if (!isIPv4(ip)) {
+      throw new Error(`IP address ${ip} is not a valid IPv4 address.`)
+    }
+  } else if (version === "v6") {
+    if (!isIPv6(ip)) {
+      throw new Error(`IP address ${ip} is not a valid IPv6 address.`)
+    }
+  }
+
+  if (previousIpAddress && previousIpAddress[version] === ip) {
+    console.log(
+      `IP${version} does not change. Previous: ${previousIpAddress[version]} Current: ${ip}`
+    )
+    return
+  }
+
+  // If previous record already exists, update it
+  if (previousTargetRecordId[version]) {
+    console.log(`Updating existing record with new IP${version}: ${ip}.`)
+    updateDnsRecord({
+      recordId: previousTargetRecordId[version]!,
+      recordName,
+      recordType: version === "v4" ? "A" : "AAAA",
+      ipAddress: ip,
+    })
+  } else {
+    // Check DNS records first for existing record with same domain name and type
+    const existingRecord = await searchDnsRecords({
+      recordName,
+      recordType: version === "v4" ? "A" : "AAAA",
+    })
+    if (existingRecord) {
+      console.log(
+        `Found existing record with domain name: ${recordName}. Updating it.`
+      )
+      updateDnsRecord({
+        recordId: existingRecord.id,
+        recordName,
+        recordType: version === "v4" ? "A" : "AAAA",
+        ipAddress: ip,
+      })
+      previousTargetRecordId[version] = existingRecord.id
+      return
+    }
+    // else, Create a new record
+    console.log(`Creating new record with new IP${version}: ${ip}.`)
+    const newRecord = await createDnsRecord({
+      recordName,
+      recordType: version === "v4" ? "A" : "AAAA",
+      ipAddress: ip,
+    })
+    previousTargetRecordId[version] = newRecord.id
+  }
+}

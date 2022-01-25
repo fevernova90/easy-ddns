@@ -3,6 +3,7 @@ import { config } from "../../config"
 import { CFResponseError } from "./types/api-base.interface"
 import {
   CFDNSRecord,
+  CFDNSType,
   CFListDnsRecordsQueryParams,
   CFListDnsRecordsResponse,
 } from "./types/list-dns-records.interface"
@@ -10,7 +11,8 @@ import {
 const baseUrl = config.CLOUDFLARE_BASE_URL
 
 export const CFSearchDnsRecords = (
-  recordName: string
+  recordName: string,
+  recordType: CFDNSType
 ): Promise<CFDNSRecord | null> => {
   const apiToken = config.CLOUDFLARE_API_TOKEN
   const zoneId = config.CLOUDFLARE_ZONE_ID
@@ -20,7 +22,7 @@ export const CFSearchDnsRecords = (
 
   const queryParams: CFListDnsRecordsQueryParams = {
     name: recordName,
-    type: "A",
+    type: recordType,
   }
 
   return axios

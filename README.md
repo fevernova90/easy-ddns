@@ -70,8 +70,8 @@ services:
 #### Optional Environment Variables
 
 - `UPDATE_CRONTAB` - Cron job to update your DNS record, default is `0 * * * * *`
-- `DNS_RECORD_TYPE` - DNS record type, default is `A`
 - `DNS_RECORD_TTL` - DNS record TTL, default is `300`
+- `UPDATE_IPV6` - Update IPv6 address as AAAA record, default is `false`
 
 ## Built With
 

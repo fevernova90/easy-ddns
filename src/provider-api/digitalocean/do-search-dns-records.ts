@@ -1,11 +1,9 @@
 import axios, { AxiosError } from "axios"
 import { config } from "../../config"
-import {
-  getSubFromFQDN,
-  removeTldFromFQDN,
-} from "../utils/domain-string-helpers"
+import { getSubFromFQDN } from "../../utils/domain-string-helpers"
 import {
   DODNSRecord,
+  DODNSType,
   DOListDnsRecordsQueryParams,
   DOListDnsRecordsResponse,
 } from "./types/list-dns-records.interface"
@@ -13,7 +11,8 @@ import {
 const baseUrl = config.DIGITALOCEAN_BASE_URL
 
 export const DOSearchDnsRecords = (
-  recordName: string
+  recordName: string,
+  recordType: DODNSType
 ): Promise<DODNSRecord | null> => {
   const apiToken = config.DIGITALOCEAN_ACCESS_TOKEN
   const tldDomain = config.DIGITALOCEAN_TLD_DOMAIN
@@ -22,7 +21,7 @@ export const DOSearchDnsRecords = (
 
   const queryParams: DOListDnsRecordsQueryParams = {
     name: recordName,
-    type: "A",
+    type: recordType,
   }
 
   return axios

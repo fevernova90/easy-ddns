@@ -11,6 +11,7 @@ const baseUrl = config.CLOUDFLARE_BASE_URL
 
 export const CFCreateDnsRecord = (
   recordName: string,
+  recordType: CFDNSType,
   ipAddress: string
 ): Promise<CFDNSRecord> => {
   const apiToken = config.CLOUDFLARE_API_TOKEN
@@ -19,11 +20,10 @@ export const CFCreateDnsRecord = (
   if (!apiToken || !zoneId)
     throw new Error("Missing Cloudflare API credentials.")
 
-  const dnsRecordType: CFDNSType = config.DNS_RECORD_TYPE as CFDNSType
   const ttl = config.DNS_RECORD_TTL
 
   const data: CFCreateDnsRecordPayload = {
-    type: dnsRecordType,
+    type: recordType,
     name: recordName,
     content: ipAddress,
     ttl,
