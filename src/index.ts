@@ -5,7 +5,7 @@ import {
   createDnsRecord,
   searchDnsRecords,
   updateDnsRecord,
-} from "./provider-api/provider-api"
+} from "./dns-update/provider-api"
 import { isIPv4, isIPv6 } from "net"
 
 export interface DNSRecordIds {
