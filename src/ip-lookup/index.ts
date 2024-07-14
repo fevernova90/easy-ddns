@@ -14,17 +14,18 @@ export const getIpFromLookupProvider = async (): Promise<IPs> => {
     v4: null,
     v6: null,
   }
+
   try {
-    ips = await getIpFromIpify()
+    ips = await getIpFromIpApi()
   } catch (err) {
-    console.log("Failed to get ip address from ipify.", err)
+    console.log("Failed to get ip address from ip-api.", err)
   }
 
   if (!ips.v4 && !ips.v6) {
     try {
-      ips = await getIpFromIpApi()
+      ips = await getIpFromIpify()
     } catch (err) {
-      console.log("Failed to get ip address from ip-api.", err)
+      console.log("Failed to get ip address from ipify.", err)
     }
   }
 
